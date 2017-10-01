@@ -1,34 +1,29 @@
 from __future__ import print_function
-from board import *
-from bomberman import *
-from person import *
+from board import Board
+from bomberman import BomberMan
+from person import Person
 import sys
 import copy
 import signal
 import os
-from time import time
-from alarmexception import *
-from getchunix import *
-from bomb import *
+import time
+from alarmexception import AlarmException
+from getchunix import GetchUnix
+from bomb import Bomb
 from random import randint
-from brick import *
-from enemy import *
+from brick import Brick
+from enemy import Enemy
 getch = GetchUnix()
 
 
 s = [[0 for i in range(68)] for j in range(42)]
 b = copy.deepcopy(s)
 arr = []
-x = 2
-y = 4
 num_bricks = 10
 num_enemy = 3
-bx = 0
-by = 0
 flag = 0
 count = 0
 fl = 0
-life = 3
 score = 0
 
 # brick functions
@@ -39,15 +34,15 @@ brick.make_bricks(wall, s, num_bricks)
 length = len(wall)
 
 # bomberman
-bomber = BomberMan()
-bomber.make(x, y, b)
+bomber = BomberMan(2, 4, 3)
+bomber.make(bomber.x, bomber.y, b)
 
 # board
 board = Board()
 board.makeBoard(0, s)
 
 # bomb
-bomb = Bomb()
+bomb = Bomb(0, 0)
 
 # enemy
 enemy = []
@@ -78,20 +73,15 @@ ini_time = time.time()
 # start
 while True:
     curr_time = time.time()
-    q = copy.deepcopy(bomber.check(enemy_pos, x, y, b, life))
-    x = q[0]
-    y = q[1]
-    life = q[2]
+    bomber.check(enemy_pos, b)
 
     if (curr_time - ini_time >= 1):
-        arr = copy.deepcopy(zombie.move(enemy_pos, s, b, x, y))
-        x = arr[0]
-        y = arr[1]
+        zombie.move(enemy_pos, s, b)
 
         if count == 0:
             if flag == 1:
-                bomb.explode(bx, by, s, b, wall, enemy_pos)
-                bomb.remove(bx, by, s)
+                bomb.explode(s, b, wall, enemy_pos)
+                bomb.remove(s)
                 fl = 1
             flag = 0
             count = 2
@@ -100,48 +90,58 @@ while True:
             count -= 1
         ini_time = curr_time
 
-    if life == 0:
-        bomber.remove(x, y, b)
+    if bomber.life == 0:
+        bomber.remove(bomber.x, bomber.y, b)
         for i in enemy_pos:
             zombie.remove(i[0], i[1], b)
 
-        bomb.remove(bx, by, s)
+        bomb.remove(s)
 
     if level == 4:
         os.system("tput reset")
-        print ("Your Score is: ",score)
+        print("Your Score is: ", score)
         print("You Win")
         sys.exit(0)
-    board.printBoard(s, b, score, x, y, count, bx, by, life, level)
+    board.printBoard(
+        s,
+        b,
+        score,
+        bomber.x,
+        bomber.y,
+        count,
+        bomb.bx,
+        bomb.by,
+        bomber.life,
+        level)
 
-    if life == 0:
+    if bomber.life == 0:
         os.system("tput reset")
         print("Your Score is: ", score)
         print("You Lose")
         sys.exit(0)
     if fl == 1:
-        bomb.rem_expo(bx, by, s)
+        bomb.rem_expo(s)
         score = (length - len(wall)) * 20 + (en_length - len(enemy_pos)) * 100
-        if b[x][y] == 0 or b[x][y] == 2:
-            bomber.make(2, 4, b)
-            x = 2
-            y = 4
-            life -= 1
+        if b[bomber.x][bomber.y] == 0 or b[bomber.x][bomber.y] == 2:
+            bomber.make(b)
+            bomber.x = 2
+            bomber.y = 4
+            bomber.life -= 1
         fl = 0
 
     inp = input_to()
 
     if inp == 'w':
-        x = bomber.moveup(x, y, b, s, 1)
+        bomber.x = bomber.moveup(bomber.x, bomber.y, b, s, 1)
 
     elif inp == 's':
-        x = bomber.movedown(x, y, b, s, 1)
+        bomber.x = bomber.movedown(bomber.x, bomber.y, b, s, 1)
 
     elif inp == 'a':
-        y = bomber.moveleft(x, y, b, s, 1)
+        bomber.y = bomber.moveleft(bomber.x, bomber.y, b, s, 1)
 
     elif inp == 'd':
-        y = bomber.moveright(x, y, b, s, 1)
+        bomber.y = bomber.moveright(bomber.x, bomber.y, b, s, 1)
 
     elif inp == 'q':
         os.system("tput reset")
@@ -151,9 +151,8 @@ while True:
 
     elif inp == 'b':
         if flag == 0:
-            bomb.place(x, y, s)
-            bx = x
-            by = y
+            bomb.change(bomber.x, bomber.y)
+            bomb.place(s)
             flag = 1
             count = 2
 
@@ -165,10 +164,6 @@ while True:
         s = [[0 for i in range(68)] for j in range(42)]
         b = copy.deepcopy(s)
         arr = []
-        x = 2
-        y = 4
-        bx = 0
-        by = 0
         flag = 0
         count = 2
         fl = 0
@@ -179,13 +174,13 @@ while True:
         brick.make_bricks(wall, s, num_bricks)
         length = len(wall)
         # bomberman
-        bomber = BomberMan()
-        bomber.make(x, y, b)
+        bomber = BomberMan(2, 4, bomber.life)
+        bomber.make(b)
         # board
         board = Board()
         board.makeBoard(0, s)
         # bomb
-        bomb = Bomb()
+        bomb = Bomb(0, 0)
         # enemy
         enemy = []
         zombie = Enemy()

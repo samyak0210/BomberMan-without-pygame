@@ -1,6 +1,11 @@
 from __future__ import print_function
 
+
 class Person():
+    a = 0
+
+    def __init__(self):
+        self.a = 0
 
     def check_right(self, i, j, s):
         for k in range(4):

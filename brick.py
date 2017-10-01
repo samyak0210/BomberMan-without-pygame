@@ -3,6 +3,10 @@ import random
 
 
 class Brick():
+    a = 0
+
+    def __init__(self):
+        self.a = 0
 
     def create_bricks(self, x, y, s):
         for i in range(2):

@@ -1,9 +1,13 @@
 from __future__ import print_function
-from person import *
+from person import Person
 import random
 
 
 class Enemy(Person):
+    a = 0
+
+    def __init__(self):
+        self.a = 0
 
     def create_enemy(self, x, y, s):
         for i in range(2):
@@ -14,11 +18,11 @@ class Enemy(Person):
         for i in range(4, 40, 2):
             if i % 4 == 0 or i % 4 == 1:
                 for j in range(4, 61, 8):
-                    if (s[i][j] == 0 and (s[i - 1][j] == 0 or s[i + 2][j] == 0)):
+                    if s[i][j] == 0 and (s[i - 1][j] == 0 or s[i + 2][j] == 0):
                         enemy.append([i, j])
             if i % 4 == 2 or i % 4 == 3:
                 for j in range(4, 61, 4):
-                    if (s[i][j] == 0 and (s[i][j - 1] == 0 or s[i][j + 4] == 0)):
+                    if s[i][j] == 0 and (s[i][j - 1] == 0 or s[i][j + 4] == 0):
                         enemy.append([i, j])
 
         a = random.sample(range(0, len(enemy)), num)
@@ -28,12 +32,13 @@ class Enemy(Person):
             en.append([enemy[i][0], enemy[i][1]])
         return en
 
-    def move(self, enemy_pos, s, b, x1, y):
-        for i in range(len(enemy_pos)):
-            tmpx = enemy_pos[i][0]
+    def move(self, enemy_pos, s, b):
+        for i, l in enumerate(enemy_pos):
+            tmpx = l[0]
             tmpy = enemy_pos[i][1]
-            if((self.check_left(tmpx, tmpy, s) == 0 or b[tmpx][tmpy - 1] == 2) and (self.check_right(tmpx, tmpy, s) == 0 or b[tmpx][tmpy + 4] == 2) and (b[tmpx - 1][tmpy] == 2 or self.check_up(tmpx, tmpy, s) == 0) and (self.check_down(tmpx, tmpy, s) == 0) or b[tmpx + 2][tmpy] == 2):
-                continue
+            if self.check_left(tmpx, tmpy, s) == 0 or b[tmpx][tmpy - 1] == 2:
+                if (self.check_right(tmpx, tmpy, s) == 0 or b[tmpx][tmpy + 4] == 2) and (b[tmpx - 1][tmpy] == 2 or self.check_up(tmpx, tmpy, s) == 0) and ((self.check_down(tmpx, tmpy, s) == 0) or b[tmpx + 2][tmpy] == 2):
+                    continue
             while tmpx == enemy_pos[i][0] and tmpy == enemy_pos[i][1]:
                 cx = enemy_pos[i][0]
                 cy = enemy_pos[i][1]
@@ -50,5 +55,3 @@ class Enemy(Person):
                 if x == 3 and b[cx - 1][cy] != 5:
                     enemy_pos[i][0] = self.moveup(
                         enemy_pos[i][0], enemy_pos[i][1], b, s, 2)
-
-        return [x1, y]

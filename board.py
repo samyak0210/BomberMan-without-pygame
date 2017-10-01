@@ -3,6 +3,10 @@ from termcolor import colored as cl
 
 
 class Board():
+    a = 0
+
+    def __init__(self):
+        self.a = 0
 
     def makeBoard(self, score, s):
         for i in range(1, 3):
